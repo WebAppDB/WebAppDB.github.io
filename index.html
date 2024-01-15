@@ -6,62 +6,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="favicon.ico" />
   <title>Web App DB</title>
-  <script>
-    window.addEventListener("click", function(event){
-      if("A" == event.target.tagName) {
-        event.preventDefault()
-        window.location.href = event.target.href;
-      }
-    });
- //   window.location = "https://wlee0515.github.io/";
-  </script>
-  
-  <style>
-    body {
-      overflow: hidden;
-      margin: 0;
-      padding: 0;
-      width: 100vw;
-      height: 100vh;
-/*
-      background-image: url("startup.png"); 
-      background-position: center;  
-      background-repeat: no-repeat; 
-      background-size: cover; 
-      background-color: black; /*this is the color of the navbar*/
- */
-      /* disable selection to prevent selecting the view port*/
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-
-      text-align: center;
-
-    }
-
-    #debug_div {
-      position: fixed;
-      top: 0;
-      left: 0;
-      background: rgba(255, 255, 255, 0.75);
-    }
-
-    #viewport_div {
-      /* Make this default to 100%, will scale on resize*/
-      overflow: hidden;
-      /* fix position to the bottom to account for the dynamically changing bottom nav bar in safari*/
-      position: fixed; 
-      bottom: 0;
-    }
-
-  </style>
+  <link rel="stylesheet" href="WebAppEngine.css">
+  <script type="module" src="WebAppEngine.mjs"></script>
 </head>
 <body>
-  <a href="https://wlee0515.github.io/">Visit WLee0515</a>
-  <a href="https://wlee0515.github.io/Iphone-Tetris">Tetris App</a>
-
 </body>
 </html>

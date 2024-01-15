@@ -1,0 +1,45 @@
+.app_label {
+  max-width: 400px;
+  min-width: 100px;
+  width: 100%;
+
+  height: 64px;
+
+  padding: 1px;
+  margin: 2px;
+
+  display:  inline-grid;
+  grid-template-columns: 64px  auto;
+  grid-template-rows: 20px auto;
+
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  .app_icon {
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 1;
+    grid-row-end: end;
+
+    height: 64px;
+    width: 64px;
+  }
+  
+  .app_title {
+    grid-column-start: 2;
+    grid-column-end: end;
+    grid-row-start: 1;
+    grid-row-end: 1;
+
+  }
+  
+  .app_description {
+    grid-column-start: 2;
+    grid-column-end: end;
+    grid-row-start: 2;
+    grid-row-end: end;
+
+  }
+}
+
+.viewport_backButton {
+  padding: 5px;
+}
