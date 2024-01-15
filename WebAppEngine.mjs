@@ -1,124 +1,105 @@
-
-var pageEnum = {
-  App : "App",
-  Viewport : "Viewport",
-}
-
-var gGlobal = {
-  elapseTime : 0,
-  lastIterationTime :Date.now(),
-  navBarHeight : 50,
-  appObject : null,
-  pages : {}
-};
-
-async function loadModule(iModulePath) {
-  const module = await import(iModulePath);
-  var wAppObj = module.getApp();
-  if (null != wAppObj) {
-    if (null != gGlobal.appObject ) {
-      unloadModule();
-    }
-    gGlobal.appObject = wAppObj;
-    gGlobal.appObject.initialize();  
-  }
-}
-
-async function unloadModule() {
-  if (null != gGlobal.appObject) {
-    gGlobal.appObject.destroy();
-    gGlobal.appObject = null;
-  }
-}
-
-function createPageObj() {
+function appContainerObject(iAppObj, iAppDom){
   return {
-    buildFunc : null,
-    initFunc : null,
-    resizeFunc : null,
-    domObj : null
-  }
+    appObj : iAppObj,
+    appDom : iAppDom
+  };
 }
 
-function changePage(iNewPageEnum, iCreateNew) {
-  for (const wMode in gGlobal.pages) {
-    if (null != gGlobal.pages[wMode].domObj) {
-      if (document.body.contains(gGlobal.pages[wMode].domObj)) {
-        document.body.removeChild(gGlobal.pages[wMode].domObj);
-      }  
-    }
-  }
-  if (true == iCreateNew || null == gGlobal.pages[iNewPageEnum].domObj) {
-    gGlobal.pages[iNewPageEnum].domObj = gGlobal.pages[iNewPageEnum].buildFunc();
-  }
-  document.body.appendChild(gGlobal.pages[iNewPageEnum].domObj);
-}
+export class WebAppEngine {
 
-export function changePageToApp() {
-  changePage(pageEnum.App, false);
-}
-
-export function changePageToViewport() {
-  changePage(pageEnum.Viewport, true);
-}
-
-function entryPoint() {
-
-  var wNow = Date.now();
-  var wDt = (wNow - gGlobal.lastIterationTime) / 1000;
-  gGlobal.lastIterationTime = wNow;
-  if (0.025 < wDt) wDt = 0.025; // limit elapseTime
-  gGlobal.elapseTime += wDt;
-
-  resize(); // update window size
-
-  if (null != gGlobal.appObject) {
-    if(true == gGlobal.appObject.gameLoop(wDt)) {
-      gGlobal.appObject.render(wDt, document.getElementById(gGlobal.viewportId));
-    }
-    else {
-      unloadModule();
-      changePageToApp();
-    }
-  }
+  data = {
+    elapseTime : 0,
+    lastIterationTime :Date.now(),
+    navBarHeight : 50,
+    appStack : [],
+    frameDom : null,
+  };
   
-  window.requestAnimationFrame(entryPoint); // call next frame
-}
-
-function resizeFillScreen(iDom){
-  
-  iDom.style.position = "fixed";
-  iDom.style.bottom = "0px";
-
-  var desireHeight = iDom.offsetTop + iDom.offsetHeight +1;
-  var desireWidth = window.innerWidth + 1;
-  if (iDom.clientHeight != desireHeight) {
-    iDom.style.height = desireHeight + "px";
-  
-    if (null != iDom.WebAppEngineContentDom && null != iDom.WebAppEngineNavBarDom) {
-      iDom.WebAppEngineContentDom.style.height = desireHeight - gGlobal.navBarHeight + "px";
-      iDom.WebAppEngineNavBarDom.style.height = gGlobal.navBarHeight + "px";
+  constructor(iFrameDom, iBaseApp) {
+    this.data.frameDom = iFrameDom;
+    if (null != iBaseApp) {
+      this.data.appStack.push(appContainerObject(iBaseApp, document.createElement("div")));
+      this.data.appStack.at(-1).appObj.initialize(this.data.appStack.at(-1).appDom);
+      this.data.frameDom.appendChild(this.data.appStack.at(-1).appDom);
     }
   }
-  if (iDom.width != desireWidth) iDom.width = desireWidth;
 
-}
-
-function resize() {
-
-  // document.body.style.height = navBarDom.height + 2 + "px";
-   document.body.style.width = "100vw";
-
-  for (const wMode in gGlobal.pages) {
-    if (null != gGlobal.pages[wMode].domObj) {
-      if (document.body.contains(gGlobal.pages[wMode].domObj)) {
-        if(null != gGlobal.pages[wMode].resizeFunc) gGlobal.pages[wMode].resizeFunc
-        
-        (gGlobal.pages[wMode].domObj);
-      }  
+  async loadModule(iModulePath) {
+    const module = await import(iModulePath);
+    var wAppObj = module.getApp();
+    if (null != wAppObj) {      
+      if (0 != this.data.appStack.length) {
+        var wLastApp = this.data.appStack.at(-1);
+        this.data.frameDom.removeChild(wLastApp.appDom);
+      }
+      this.data.appStack.push( appContainerObject(wAppObj, createViewport(this)));
+      this.data.appStack.at(-1).appObj.initialize(this.data.appStack.at(-1).appDom);
+      this.data.frameDom.appendChild(this.data.appStack.at(-1).appDom);
     }
   }
+
+  async unloadModule() {
+    if (0 != this.data.appStack.length) {
+      var wLastApp = this.data.appStack.pop();
+      this.data.frameDom.removeChild(wLastApp.appDom);
+      wLastApp.appObj.destroy();
+
+      if (0 != this.data.appStack.length) {
+        var wNextApp = this.data.appStack.at(-1);
+        this.data.frameDom.appendChild(wNextApp.appDom);
+      }
+    }
+  }
+
+  engineResize() {
+    if (0 != this.data.appStack.length) {
+      var wRunningApp = this.data.appStack.at(-1);
+
+      if (null != this.data.baseDom) {
+        var resizeApp = false;
+        if(this.data.baseDom.clientHeight != wRunningApp.appDom.clientHeight) {
+          wRunningApp.appDom.style.height = this.data.baseDom.clientHeight + "px";
+          resizeApp = true;
+        }
+        if(this.data.baseDom.clientWidth != wRunningApp.appDom.clientWidth) {
+          wRunningApp.appDom.style.width = this.data.baseDom.clientWidth + "px";
+          resizeApp = true;
+        }
+
+        if (true == resizeApp) {
+          wRunningApp.appObj.resize(wRunningApp.appDom);
+        }
+      }
+    }
+  }
+
+  engineEntryPoint (iApp) {
+    var wNow = Date.now();
+    var wDt = (wNow - this.data.lastIterationTime) / 1000;
+    this.data.lastIterationTime = wNow;
+    if (0.025 < wDt) wDt = 0.025; // limit elapseTime
+    this.data.elapseTime += wDt;
+
+    this.engineResize(); // update window size
+
+    if (0 != this.data.appStack.length) {
+      var wRunningApp = this.data.appStack.at(-1);
+      if(true == wRunningApp.appObj.gameLoop(wDt)) {
+        wRunningApp.appObj.render(wDt, this.data.workingDom );
+      }
+      else {
+        this.unloadModule();
+      }
+    }
+    
+    window.requestAnimationFrame(this.engineEntryPoint.bind(this));
+  }
+
+  runEngine () {
+    window.requestAnimationFrame(this.engineEntryPoint.bind(this));
+  }
 }
+
 
 function disableSelect() {
   const styleElement = document.createElement('style');
@@ -138,69 +119,8 @@ function disableSelect() {
   document.head.appendChild(styleElement);
 }
 
-function fetchAndPopulateDom( iDom, iAppListPath ) {
-  fetch(iAppListPath)
-  .then(response => response.json())
-  .then(data => {
-    populateDomWithAppList( iDom, data);
-  })
-  .catch(error => {
-    iDom.innerHTML = "<div>Error getting Application List</div>";
-  })
-}
 
-function populateDomWithAppList( iDom, iAppList) {
-
-  iAppList.forEach( function (iApp) {
-    const appDom = document.createElement('div');
-    appDom.classList.add("app_label");
-
-    const modulePath = iApp.module;
-    appDom.addEventListener("click", function () { loadModule(modulePath).then( changePageToViewport) })
-    
-    const titleDom = document.createElement('div');
-    titleDom.innerHTML = iApp.title;
-    titleDom.classList.add("app_title");
-    appDom.appendChild(titleDom);
-    
-    const descriptionDom = document.createElement('div');
-    descriptionDom.innerHTML = iApp.description;
-    descriptionDom.classList.add("app_description");
-    appDom.appendChild(descriptionDom);
-
-    const iconImage = new Image();
-    iconImage.src = iApp.icon;
-    iconImage.alt = iApp.title;
-    iconImage.classList.add("app_icon");
-    appDom.appendChild(iconImage);
-    
-    iDom.appendChild(appDom);
-  })
-}
-
-function createAppPage() {
-  const contentDom = document.createElement('div');
-  contentDom.class = "content";
-  contentDom.style.overflowY = "scroll";
-  contentDom.style.overflowX = "hidden";
-  fetchAndPopulateDom(contentDom, "./appList.json")
-
-  const navBarDom = document.createElement('div');
-  navBarDom.class = "navbar";
-  navBarDom.style.width = "100vw";
-  navBarDom.style.height = "50px";
-
-  var returnDom = document.createElement('div');
-  returnDom.appendChild(contentDom);
-  returnDom.appendChild(navBarDom);
-
-  returnDom.WebAppEngineContentDom = contentDom;
-  returnDom.WebAppEngineNavBarDom = navBarDom;
-
-  return returnDom;
-}
-
-function createViewport() {
+function createViewport( iEngine ) {
   var returnDom = document.createElement('div');
   returnDom.style.position = "fixed";
   returnDom.style.bottom = "-1px";
@@ -214,8 +134,7 @@ function createViewport() {
   backButton.classList.add("viewport_backButton")
   backButton.style.zIndex = "9999";
   backButton.addEventListener("click", function() { 
-    unloadModule();
-    changePageToApp();
+    iEngine.unloadModule();
   });
   returnDom.appendChild(backButton);
   
@@ -238,11 +157,3 @@ function setupHtml() {
   changePageToApp();
 }
 
-function init() {
-  disableSelect();
-  setupHtml();  
-  window.requestAnimationFrame(entryPoint);
-}
-
-window.addEventListener("load", init);
-window.addEventListener("resize", resize);

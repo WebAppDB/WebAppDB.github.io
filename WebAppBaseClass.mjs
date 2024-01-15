@@ -3,7 +3,7 @@ export class WebAppBaseClass {
   constructor() {
   }
 
-  initialize() {
+  initialize(iContainerDom) {
   }
 
   destroy() {
@@ -13,6 +13,10 @@ export class WebAppBaseClass {
     return true;
   }
   
+  resize(iContainerDom) {
+
+  }
+
   render(iDt, iCanvasDom) {
   }
 

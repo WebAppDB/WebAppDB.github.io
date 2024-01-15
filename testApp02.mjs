@@ -6,7 +6,7 @@ class testApp extends WebAppBaseClass {
     super();
   }
   
-  initialize() {
+  initialize(iContainerDom) {
     alert("Hi from Test App 2")
   }
 
