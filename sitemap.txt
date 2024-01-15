@@ -1,0 +1,12 @@
+NavBar
+  - Home
+      - Favorites
+      - Recent
+      - Instructions
+      - Score Board?
+  - What's new
+  - Browse
+    - Games
+    - Productivity
+  - Search
+  - Forum/chat
