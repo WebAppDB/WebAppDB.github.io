@@ -10,15 +10,15 @@ class testApp extends WebAppBaseClass {
     alert("Hi from Test App 2")
   }
 
-  destroy() {
+  destroy(iContainerDom) {
     alert("Goodbye from Test App 2")
   }
 
-  gameLoop(wDt) {
+  gameLoop(iDt, iContainerDom) {
     return true;
   }
   
-  render(iDt, iCanvasDom) {
+  render(iDt, iContainerDom) {
   }
 
 }

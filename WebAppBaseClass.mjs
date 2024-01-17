@@ -6,18 +6,17 @@ export class WebAppBaseClass {
   initialize(iContainerDom) {
   }
 
-  destroy() {
+  destroy(iContainerDom) {
   }
 
-  gameLoop(wDt) {
+  resize(iContainerDom) {
+  }
+
+  gameLoop(wDt, iContainerDom) {
     return true;
   }
   
-  resize(iContainerDom) {
-
-  }
-
-  render(iDt, iCanvasDom) {
+  render(iDt, iContainerDom) {
   }
 
 }

@@ -1,7 +1,7 @@
 .app_label {
   max-width: 400px;
   min-width: 100px;
-  width: 100%;
+  width: calc(100% - 9px);
 
   height: 64px;
 

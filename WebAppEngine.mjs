@@ -10,15 +10,16 @@ export class WebAppEngine {
   data = {
     elapseTime : 0,
     lastIterationTime :Date.now(),
-    navBarHeight : 50,
     appStack : [],
     frameDom : null,
   };
   
   constructor(iFrameDom, iBaseApp) {
     this.data.frameDom = iFrameDom;
+    this.data.frameDom.style.margin = "0px";
+    this.data.frameDom.style.padding = "0px";
     if (null != iBaseApp) {
-      this.data.appStack.push(appContainerObject(iBaseApp, document.createElement("div")));
+      this.data.appStack.push(appContainerObject(iBaseApp, createAppContainerDom()));
       this.data.appStack.at(-1).appObj.initialize(this.data.appStack.at(-1).appDom);
       this.data.frameDom.appendChild(this.data.appStack.at(-1).appDom);
     }
@@ -32,7 +33,7 @@ export class WebAppEngine {
         var wLastApp = this.data.appStack.at(-1);
         this.data.frameDom.removeChild(wLastApp.appDom);
       }
-      this.data.appStack.push( appContainerObject(wAppObj, createViewport(this)));
+      this.data.appStack.push( appContainerObject(wAppObj, createAppContainerDomWithBackButton(this)));
       this.data.appStack.at(-1).appObj.initialize(this.data.appStack.at(-1).appDom);
       this.data.frameDom.appendChild(this.data.appStack.at(-1).appDom);
     }
@@ -42,7 +43,7 @@ export class WebAppEngine {
     if (0 != this.data.appStack.length) {
       var wLastApp = this.data.appStack.pop();
       this.data.frameDom.removeChild(wLastApp.appDom);
-      wLastApp.appObj.destroy();
+      wLastApp.appObj.destroy(wLastApp.appDom);
 
       if (0 != this.data.appStack.length) {
         var wNextApp = this.data.appStack.at(-1);
@@ -55,14 +56,14 @@ export class WebAppEngine {
     if (0 != this.data.appStack.length) {
       var wRunningApp = this.data.appStack.at(-1);
 
-      if (null != this.data.baseDom) {
+      if (null != this.data.frameDom) {
         var resizeApp = false;
-        if(this.data.baseDom.clientHeight != wRunningApp.appDom.clientHeight) {
-          wRunningApp.appDom.style.height = this.data.baseDom.clientHeight + "px";
+        if(this.data.frameDom.clientHeight != wRunningApp.appDom.clientHeight) {
+          wRunningApp.appDom.style.height = this.data.frameDom.clientHeight + "px";
           resizeApp = true;
         }
-        if(this.data.baseDom.clientWidth != wRunningApp.appDom.clientWidth) {
-          wRunningApp.appDom.style.width = this.data.baseDom.clientWidth + "px";
+        if(this.data.frameDom.clientWidth != wRunningApp.appDom.clientWidth) {
+          wRunningApp.appDom.style.width = this.data.frameDom.clientWidth + "px";
           resizeApp = true;
         }
 
@@ -84,7 +85,7 @@ export class WebAppEngine {
 
     if (0 != this.data.appStack.length) {
       var wRunningApp = this.data.appStack.at(-1);
-      if(true == wRunningApp.appObj.gameLoop(wDt)) {
+      if(true == wRunningApp.appObj.gameLoop(wDt, this.data.workingDom)) {
         wRunningApp.appObj.render(wDt, this.data.workingDom );
       }
       else {
@@ -100,31 +101,19 @@ export class WebAppEngine {
   }
 }
 
-
-function disableSelect() {
-  const styleElement = document.createElement('style');
-  // Define CSS rules
-  const cssRules = `
-    body {
-      /* disable selection to prevent selecting the view port*/
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-  `;  
-  styleElement.innerHTML = cssRules;
-  document.head.appendChild(styleElement);
-}
-
-
-function createViewport( iEngine ) {
+function createAppContainerDom() {
   var returnDom = document.createElement('div');
   returnDom.style.position = "fixed";
-  returnDom.style.bottom = "-1px";
-  returnDom.style.left = "-1px";
+  returnDom.style.bottom = "0px";
+  returnDom.style.left = "0px";
+  returnDom.style.margin = "0px";
+  returnDom.style.padding = "0px";
+
+  return returnDom;
+}
+
+function createAppContainerDomWithBackButton( iEngine ) {
+  var returnDom = createAppContainerDom();
 
   var backButton = document.createElement('div');
   backButton.innerText = "< Back";
@@ -139,21 +128,5 @@ function createViewport( iEngine ) {
   returnDom.appendChild(backButton);
   
   return returnDom;
-}
-
-function setupHtml() {
-  document.body.style.padding = 0;
-  document.body.style.margin = 0;
-  document.body.style.overflow = "hidden";
-
-  gGlobal.pages[pageEnum.App] = createPageObj();
-  gGlobal.pages[pageEnum.App].buildFunc = createAppPage;
-  gGlobal.pages[pageEnum.App].resizeFunc = resizeFillScreen;
-
-  gGlobal.pages[pageEnum.Viewport] = createPageObj();
-  gGlobal.pages[pageEnum.Viewport].buildFunc = createViewport;
-  gGlobal.pages[pageEnum.Viewport].resizeFunc = resizeFillScreen;
-  
-  changePageToApp();
 }
 

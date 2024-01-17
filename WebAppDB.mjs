@@ -41,26 +41,28 @@ function populateDomWithAppList( iDom, iAppList, iAppObj) {
   })
 }
 
-function createAppPage(iAppObj) {
+function createAppPage(iContainerDom, iAppObj) {
   const contentDom = document.createElement('div');
   contentDom.class = "content";
   contentDom.style.overflowY = "scroll";
   contentDom.style.overflowX = "hidden";
+  contentDom.style.padding = "0px";
+  contentDom.style.margin = "0px";
+
   fetchAndPopulateDom(contentDom, "./appList.json", iAppObj)
 
   const navBarDom = document.createElement('div');
   navBarDom.class = "navbar";
   navBarDom.style.width = "100vw";
   navBarDom.style.height = "50px";
+  navBarDom.style.padding = "0px";
+  navBarDom.style.margin = "0px";
 
-  var returnDom = document.createElement('div');
-  returnDom.appendChild(contentDom);
-  returnDom.appendChild(navBarDom);
+  iContainerDom.appendChild(contentDom);
+  iContainerDom.appendChild(navBarDom);
 
-  returnDom.WebAppEngineContentDom = contentDom;
-  returnDom.WebAppEngineNavBarDom = navBarDom;
-
-  return returnDom;
+  iContainerDom.WebAppEngineContentDom = contentDom;
+  iContainerDom.WebAppEngineNavBarDom = navBarDom;
 }
 
 function disableSelect() {
@@ -85,26 +87,36 @@ function disableSelect() {
 class WebAppDB extends WebAppBaseClass {
 
   data = {
-    engine : null
+    engine : null,
+    navBarHeight : 50
   }
 
   constructor(iContainerDom) {
     super();
-    var wEngineDom = document.createElement("div");
-    this.data.engine = new WebAppEngine(wEngineDom, this);
+    this.data.engine = new WebAppEngine(iContainerDom, this);
     this.data.engine.runEngine();
-    iContainerDom.appendChild(wEngineDom);
   }
   
   initialize(iContainerDom) {
-    iContainerDom.appendChild(createAppPage(this));
+    createAppPage( iContainerDom, this);
     disableSelect();
   }
-/*
-  destroy() {
-    alert("Goodbye from Test App 1")
+
+  destroy(iContainerDom) {
+  }
+  
+  resize(iContainerDom) {
+    
+    if (null != iContainerDom.WebAppEngineContentDom && null != iContainerDom.WebAppEngineNavBarDom) {
+      iContainerDom.WebAppEngineContentDom.style.width = "100%";
+      iContainerDom.WebAppEngineContentDom.style.height = iContainerDom.clientHeight - this.data.navBarHeight + "px";
+
+      iContainerDom.WebAppEngineNavBarDom.style.width = "100%";
+      iContainerDom.WebAppEngineNavBarDom.style.height = this.data.navBarHeight + "px";
+    }
   }
 
+/*
   gameLoop(wDt) {
     return true;
   }
@@ -117,7 +129,29 @@ class WebAppDB extends WebAppBaseClass {
 }
 
 
+function resizeFillScreen(iDom){
+  
+  iDom.style.position = "fixed";
+  iDom.style.bottom = "0px";
+
+  var desireHeight = iDom.offsetTop + iDom.offsetHeight;
+  var desireWidth = window.innerWidth;
+  if (iDom.clientHeight != desireHeight) {
+    iDom.style.height = desireHeight + "px";
+  }
+  if (iDom.clientWidth != desireWidth) iDom.style.width = desireWidth + "px";
+
+  window.requestAnimationFrame(function() { resizeFillScreen(iDom); })
+}
+
 var wBaseApp = null;
 window.addEventListener("load", function() {
-  wBaseApp = new WebAppDB(document.body);
+  var wContainerDom = document.createElement("div");
+  document.body.append(wContainerDom)
+  document.body.style.margin = "0px";
+  document.body.style.padding = "0px";
+
+  wBaseApp = new WebAppDB(wContainerDom);
+  window.requestAnimationFrame(function() { resizeFillScreen(wContainerDom); })
 });
+
