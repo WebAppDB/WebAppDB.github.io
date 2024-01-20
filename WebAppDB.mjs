@@ -53,10 +53,10 @@ function createAppPage(iContainerDom, iAppObj) {
 
   const navBarDom = document.createElement('div');
   navBarDom.class = "navbar";
-  navBarDom.style.width = "100vw";
   navBarDom.style.height = "50px";
   navBarDom.style.padding = "0px";
   navBarDom.style.margin = "0px";
+  navBarDom.classList.add("nav_bar");
 
   iContainerDom.appendChild(contentDom);
   iContainerDom.appendChild(navBarDom);
@@ -88,7 +88,7 @@ class WebAppDB extends WebAppBaseClass {
 
   data = {
     engine : null,
-    navBarHeight : 50
+    navBarHeight : 100
   }
 
   constructor(iContainerDom) {
@@ -108,10 +108,10 @@ class WebAppDB extends WebAppBaseClass {
   resize(iContainerDom) {
     
     if (null != iContainerDom.WebAppEngineContentDom && null != iContainerDom.WebAppEngineNavBarDom) {
-      iContainerDom.WebAppEngineContentDom.style.width = "100%";
+      iContainerDom.WebAppEngineContentDom.style.width = "auto";
       iContainerDom.WebAppEngineContentDom.style.height = iContainerDom.clientHeight - this.data.navBarHeight + "px";
 
-      iContainerDom.WebAppEngineNavBarDom.style.width = "100%";
+      iContainerDom.WebAppEngineNavBarDom.style.width = "auto";
       iContainerDom.WebAppEngineNavBarDom.style.height = this.data.navBarHeight + "px";
     }
   }

@@ -43,3 +43,7 @@
 .viewport_backButton {
   padding: 5px;
 }
+
+.nav_bar {
+  border: 1px solid violet;
+}
