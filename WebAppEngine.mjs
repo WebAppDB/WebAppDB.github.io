@@ -12,12 +12,16 @@ export class WebAppEngine {
     lastIterationTime :Date.now(),
     appStack : [],
     frameDom : null,
+    backButton : null,
   };
   
   constructor(iFrameDom, iBaseApp) {
     this.data.frameDom = iFrameDom;
     this.data.frameDom.style.margin = "0px";
     this.data.frameDom.style.padding = "0px";
+    this.data.backButton = createBackButton(this);
+    this.data.frameDom.appendChild(this.data.backButton);
+
     if (null != iBaseApp) {
       this.data.appStack.push(appContainerObject(iBaseApp, createAppContainerDom()));
       this.data.appStack.at(-1).appObj.initialize(this.data.appStack.at(-1).appDom);
@@ -33,9 +37,11 @@ export class WebAppEngine {
         var wLastApp = this.data.appStack.at(-1);
         this.data.frameDom.removeChild(wLastApp.appDom);
       }
-      this.data.appStack.push( appContainerObject(wAppObj, createAppContainerDomWithBackButton(this)));
+      this.data.appStack.push( appContainerObject(wAppObj, createAppContainerDom(this)));
       this.data.appStack.at(-1).appObj.initialize(this.data.appStack.at(-1).appDom);
       this.data.frameDom.appendChild(this.data.appStack.at(-1).appDom);
+
+      this.data.backButton.style.display = "block";
     }
   }
 
@@ -44,10 +50,15 @@ export class WebAppEngine {
       var wLastApp = this.data.appStack.pop();
       this.data.frameDom.removeChild(wLastApp.appDom);
       wLastApp.appObj.destroy(wLastApp.appDom);
+      this.data.backButton.style.display = "none";
 
       if (0 != this.data.appStack.length) {
         var wNextApp = this.data.appStack.at(-1);
         this.data.frameDom.appendChild(wNextApp.appDom);
+        
+        if ( 1 < this.data.appStack.length) {
+          this.data.backButton.style.display = "block";
+        }
       }
     }
   }
@@ -112,8 +123,7 @@ function createAppContainerDom() {
   return returnDom;
 }
 
-function createAppContainerDomWithBackButton( iEngine ) {
-  var returnDom = createAppContainerDom();
+function createBackButton( iEngine ) {
 
   var backButton = document.createElement('div');
   backButton.innerText = "< Back";
@@ -122,11 +132,11 @@ function createAppContainerDomWithBackButton( iEngine ) {
   backButton.style.left = "0px";
   backButton.classList.add("viewport_backButton")
   backButton.style.zIndex = "9999";
+  backButton.style.display = "none";
   backButton.addEventListener("click", function() { 
     iEngine.unloadModule();
   });
-  returnDom.appendChild(backButton);
-  
-  return returnDom;
+
+  return backButton;
 }
 
