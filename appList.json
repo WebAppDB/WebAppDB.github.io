@@ -28,5 +28,11 @@
     "description" : "Screen Smash for fun! from other repo same user",
     "icon" : "https://wlee0515.github.io/Iphone-Tetris/favicon.ico",
     "module" : "https://wlee0515.github.io/Iphone-Tetris/ScreenSmash.mjs"
+  },
+  {
+    "title" : "Screen Smash 2",
+    "description" : "Screen Smash for fun! from other user",
+    "icon" : "https://heapart.github.io/Post-Anything/test/favicon.ico",
+    "module" : "https://heapart.github.io/Post-Anything/test/ScreenSmash.mjs"
   }
 ]
