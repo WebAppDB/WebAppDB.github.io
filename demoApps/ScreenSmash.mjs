@@ -225,8 +225,8 @@ class ScreenSmash extends WebAppBaseClass {
         var update = false;
         if (1 < dx*dx + dy*dy) {
           this.data.gameState.inputQueue.push(this.createInput_RandText(touchObj.x/window.innerWidth, touchObj.y/window.innerHeight));
-          this.data.gameState.touchPoints[k].x = touchObj.x - (dx - parseInt(dx))*this.data.gameState.dropDist;
-          this.data.gameState.touchPoints[k].y = touchObj.y - (dy - parseInt(dy))*this.data.gameState.dropDist;
+          this.data.gameState.touchPoints[k].x = touchObj.x;
+          this.data.gameState.touchPoints[k].y = touchObj.y;
         }
         break;
       }
