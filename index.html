@@ -7,12 +7,18 @@
   <link rel="apple-touch-icon" href="favicon.ico" />
   <title>Web App DB</title>
   <link rel="stylesheet" href="css/WebAppDB.css">
-  <!--
-
-  <script type="module" src="WebAppEngine.mjs"></script>
-  -->
-  <script type="module" src="modules/WebAppDB.mjs"></script>
 </head>
 <body>
 </body>
+<script type="module">
+  import { WebAppDBEngine } from "https://webappdb.github.io/WebAppDBEngine/modules/WebAppDBEngine.mjs"
+  import { getApp } from "./modules/WebAppDB.mjs";
+
+  // Initializing with default Height so we see something
+  document.body.style.height = "100vh";
+
+  var gEngine = new WebAppDBEngine(document.body, getApp(), true);
+  gEngine.runEngine();
+
+</script>
 </html>

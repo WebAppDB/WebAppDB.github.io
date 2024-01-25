@@ -1,5 +1,5 @@
 import { WebAppBaseClass } from "https://webappdb.github.io/WebAppDBEngine/api/v01/WebAppBaseClass.mjs"
-import { WebAppEngine } from "https://webappdb.github.io/WebAppDBEngine/modules/WebAppDBEngine.mjs"
+import { sendLoadModuleRequest } from "https://webappdb.github.io/WebAppDBEngine/modules/WebAppDBEngineRequest.mjs"
 
 function fetchAndPopulateDom( iDom, iAppListPath , iAppObj) {
   fetch(iAppListPath)
@@ -18,8 +18,9 @@ function populateDomWithAppList( iDom, iAppList, iAppObj) {
     const appDom = document.createElement('div');
     appDom.classList.add("app_label");
 
-    const modulePath = iApp.module;
-    appDom.addEventListener("click", function () { iAppObj.data.engine.loadModule(modulePath);})
+    var modulePath = iApp.module;
+    if (!(modulePath.indexOf('://') > 0 || modulePath.indexOf('//') === 0 )) modulePath = location.origin + "/" + iApp.module;
+    appDom.addEventListener("click", function () { sendLoadModuleRequest(modulePath);})
     
     const titleDom = document.createElement('div');
     titleDom.innerHTML = iApp.title;
@@ -91,10 +92,8 @@ class WebAppDB extends WebAppBaseClass {
     navBarHeight : 100
   }
 
-  constructor(iContainerDom) {
+  constructor() {
     super();
-    this.data.engine = new WebAppEngine(iContainerDom, this);
-    this.data.engine.runEngine();
   }
   
   initialize(iContainerDom) {
@@ -128,30 +127,6 @@ class WebAppDB extends WebAppBaseClass {
   
 }
 
-
-function resizeFillScreen(iDom){
-  
-  iDom.style.position = "fixed";
-  iDom.style.bottom = "0px";
-
-  var desireHeight = iDom.offsetTop + iDom.offsetHeight;
-  var desireWidth = window.innerWidth;
-  if (iDom.clientHeight != desireHeight) {
-    iDom.style.height = desireHeight + "px";
-  }
-  if (iDom.clientWidth != desireWidth) iDom.style.width = desireWidth + "px";
-
-  window.requestAnimationFrame(function() { resizeFillScreen(iDom); })
+export function getApp() {
+  return new WebAppDB();
 }
-
-var wBaseApp = null;
-window.addEventListener("load", function() {
-  var wContainerDom = document.createElement("div");
-  document.body.append(wContainerDom)
-  document.body.style.margin = "0px";
-  document.body.style.padding = "0px";
-
-  wBaseApp = new WebAppDB(wContainerDom);
-  window.requestAnimationFrame(function() { resizeFillScreen(wContainerDom); })
-});
-
