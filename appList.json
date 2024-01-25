@@ -2,26 +2,26 @@
   {
     "title" : "Test App 1",
     "description" : "This is a test app to test the functionality of the page.",
-    "icon" : "./defaultIcon.png",
-    "module" : "./../testApp01.mjs"
+    "icon" : "https://webappdb.github.io/defaultIcon.png",
+    "module" : "https://webappdb.github.io/testApp01.mjs"
   },
   {
     "title" : "Test App 2",
     "description" : "This is a test app to test the functionality of the page.",
-    "icon" : "./defaultIcon.png",
-    "module" : "./../testApp02.mjs"
+    "icon" : "https://webappdb.github.io/defaultIcon.png",
+    "module" : "https://webappdb.github.io/testApp02.mjs"
   },
   {
     "title" : "Test App 2",
     "description" : "This is a test app to test the functionality of the page.",
-    "icon" : "./defaultIcon.png",
-    "module" : "./../testApp02.mjs"
+    "icon" : "https://webappdb.github.io/defaultIcon.png",
+    "module" : "https://webappdb.github.io/testApp02.mjs"
   },
   {
     "title" : "Screen Smash",
     "description" : "Screen Smash for fun!",
-    "icon" : "./defaultIcon.png",
-    "module" : "./../demoApps/ScreenSmash.mjs"
+    "icon" : "https://webappdb.github.io/defaultIcon.png",
+    "module" : "https://webappdb.github.io/demoApps/ScreenSmash.mjs"
   },
   {
     "title" : "Screen Smash 2",

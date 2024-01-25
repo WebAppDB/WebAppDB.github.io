@@ -1,4 +1,4 @@
-import { WebAppBaseClass } from "./api/v01/WebAppBaseClass.mjs"
+import { WebAppBaseClass } from "https://webappdb.github.io/WebAppDBEngine/api/v01/WebAppBaseClass.mjs"
 
 class testApp extends WebAppBaseClass {
 
