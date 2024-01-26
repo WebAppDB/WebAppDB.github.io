@@ -11,7 +11,7 @@
 <body>
 </body>
 <script type="module">
-  import { WebAppDBEngine } from "https://webappdb.github.io/WebAppDBEngine/modules/WebAppDBEngine.mjs"
+  import { WebAppDBEngine } from "./WebAppDBEngine/modules/WebAppDBEngine.mjs"
   import { getApp } from "./modules/WebAppDB.mjs";
 
   // Initializing with default Height so we see something
@@ -19,6 +19,7 @@
 
   var gEngine = new WebAppDBEngine(document.body, getApp(), true);
   gEngine.runEngine();
+
 
 </script>
 </html>

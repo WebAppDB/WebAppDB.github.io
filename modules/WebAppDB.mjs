@@ -1,5 +1,5 @@
-import { WebAppBaseClass } from "https://webappdb.github.io/WebAppDBEngine/api/v01/WebAppBaseClass.mjs"
-import { sendLoadModuleRequest } from "https://webappdb.github.io/WebAppDBEngine/modules/WebAppDBEngineRequest.mjs"
+import { WebAppBaseClass } from "./../WebAppDBEngine/api/v01/WebAppBaseClass.mjs"
+import { sendLoadModuleRequest } from "./../WebAppDBEngine/modules/WebAppDBEngineRequest.mjs"
 
 function fetchAndPopulateDom( iDom, iAppListPath , iAppObj) {
   fetch(iAppListPath)
