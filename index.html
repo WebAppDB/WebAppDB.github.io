@@ -6,7 +6,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="favicon.ico" />
   <title>Web App DB</title>
-  <link rel="stylesheet" href="css/WebAppDB.css">
 </head>
 <body>
 </body>
@@ -17,7 +16,7 @@
   // Initializing with default Height so we see something
   document.body.style.height = "100vh";
 
-  var gEngine = new WebAppDBEngine(document.body, getApp(), true);
+  var gEngine = new WebAppDBEngine(document.body, getApp(), true, "css/WebAppDB.css");
   gEngine.runEngine();
 
 

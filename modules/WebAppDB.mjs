@@ -1,26 +1,28 @@
 import { WebAppBaseClass } from "./../WebAppDBEngine/api/v01/WebAppBaseClass.mjs"
 import { sendLoadModuleRequest } from "./../WebAppDBEngine/modules/WebAppDBEngineRequest.mjs"
+import { parseWebAppDescriptor } from "./../WebAppDBEngine/modules/WebAppDescriptor.mjs"
 
-function fetchAndPopulateDom( iDom, iAppListPath , iAppObj) {
+function fetchAndPopulateDom( iDom, iAppListPath) {
   fetch(iAppListPath)
   .then(response => response.json())
   .then(data => {
-    populateDomWithAppList( iDom, data, iAppObj);
+    populateDomWithAppList( iDom, data);
   })
   .catch(error => {
     iDom.innerHTML = "<div>Error getting Application List</div>";
   })
 }
 
-function populateDomWithAppList( iDom, iAppList, iAppObj) {
+function populateDomWithAppList( iDom, iAppList) {
 
   iAppList.forEach( function (iApp) {
     const appDom = document.createElement('div');
     appDom.classList.add("app_label");
 
-    var modulePath = iApp.module;
-    if (!(modulePath.indexOf('://') > 0 || modulePath.indexOf('//') === 0 )) modulePath = location.origin + "/" + iApp.module;
-    appDom.addEventListener("click", function () { sendLoadModuleRequest(modulePath);})
+    const wWebAppDescriptor = parseWebAppDescriptor(iApp);
+    if (!(wWebAppDescriptor.module.indexOf('://') > 0 || wWebAppDescriptor.module.indexOf('//') === 0 )) wWebAppDescriptor.module = location.origin + "/" + wWebAppDescriptor.module;
+    if (!(wWebAppDescriptor.css.indexOf('://') > 0 || wWebAppDescriptor.css.indexOf('//') === 0 )) wWebAppDescriptor.css = location.origin + "/" + wWebAppDescriptor.css;
+    appDom.addEventListener("click", function () { sendLoadModuleRequest(wWebAppDescriptor);})
     
     const titleDom = document.createElement('div');
     titleDom.innerHTML = iApp.title;
@@ -42,7 +44,7 @@ function populateDomWithAppList( iDom, iAppList, iAppObj) {
   })
 }
 
-function createAppPage(iContainerDom, iAppObj) {
+function createAppPage(iContainerDom) {
   const contentDom = document.createElement('div');
   contentDom.class = "content";
   contentDom.style.overflowY = "scroll";
@@ -50,7 +52,7 @@ function createAppPage(iContainerDom, iAppObj) {
   contentDom.style.padding = "0px";
   contentDom.style.margin = "0px";
 
-  fetchAndPopulateDom(contentDom, "./appList.json", iAppObj)
+  fetchAndPopulateDom(contentDom, "./appList.json")
 
   const navBarDom = document.createElement('div');
   navBarDom.class = "navbar";
@@ -97,7 +99,7 @@ class WebAppDB extends WebAppBaseClass {
   }
   
   initialize(iContainerDom) {
-    createAppPage( iContainerDom, this);
+    createAppPage( iContainerDom);
     disableSelect();
   }
 

@@ -27,7 +27,8 @@
     "title" : "Screen Smash",
     "description" : "Screen Smash for fun!",
     "icon" : "./defaultIcon.png",
-    "module" : "./demoApps/ScreenSmash.mjs"
+    "module" : "./demoApps/ScreenSmash.mjs",
+    "css" : "./demoApps/ScreenSmash.css"
   },
   {
     "title" : "Screen Smash 2",
