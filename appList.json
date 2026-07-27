@@ -18,12 +18,6 @@
     "module" : "./testApp02.mjs"
   },
   {
-    "title" : "Test App 2",
-    "description" : "This is a test app to test the functionality of the page.",
-    "icon" : "./defaultIcon.png",
-    "module" : "./testApp02.mjs"
-  },
-  {
     "title" : "Screen Smash",
     "description" : "Screen Smash for fun!",
     "icon" : "./defaultIcon.png",

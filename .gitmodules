@@ -1,0 +1,3 @@
+[submodule "WebAppDBEngine"]
+	path = WebAppDBEngine
+	url = https://github.com/WebAppDB/WebAppDBEngine.git
