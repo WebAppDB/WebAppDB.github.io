@@ -234,13 +234,13 @@ body {
 
 .nav_bar {
   position: fixed;
-  bottom: max(10px, env(safe-area-inset-bottom));
+  bottom: max(18px, calc(env(safe-area-inset-bottom) + 10px));
   left: 50%;
   transform: translateX(-50%);
   width: min(96vw, 780px);
   display: flex;
   justify-content: center;
-  padding: 6px;
+  padding: 8px;
   height: auto;
   box-sizing: border-box;
   border: 1px solid rgba(24, 50, 75, 0.12);
@@ -285,7 +285,7 @@ body {
 .nav_tab:hover,
 .nav_tab:focus-visible {
   color: var(--accent);
-  transform: translateY(-1px);
+  transform: none;
   outline: none;
   background: rgba(37, 99, 235, 0.06);
 }
