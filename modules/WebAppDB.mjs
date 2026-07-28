@@ -244,10 +244,6 @@ function createAppPage(iContainerDom) {
     renderContent();
   }, 'whats_new');
 
-  navBarDom.style.height = '64px';
-  navBarDom.style.padding = '0px';
-  navBarDom.style.margin = '0px';
-
   iContainerDom.appendChild(contentDom);
   iContainerDom.appendChild(navBarDom);
 
@@ -333,9 +329,6 @@ class WebAppDB extends WebAppBaseClass {
     if (null != iContainerDom.WebAppEngineContentDom && null != iContainerDom.WebAppEngineNavBarDom) {
       iContainerDom.WebAppEngineContentDom.style.width = "auto";
       iContainerDom.WebAppEngineContentDom.style.height = iContainerDom.clientHeight - this.data.navBarHeight + "px";
-
-      iContainerDom.WebAppEngineNavBarDom.style.width = "auto";
-      iContainerDom.WebAppEngineNavBarDom.style.height = this.data.navBarHeight + "px";
     }
   }
 

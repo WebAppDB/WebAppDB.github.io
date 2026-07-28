@@ -8,6 +8,14 @@
   --accent: #2563eb;
   --accent-2: #8b5cf6;
   --border: rgba(24, 50, 75, 0.12);
+  --nav-width: calc(100vw - 0.25in + 0.5in);
+  --nav-height: 0.75in;
+  --nav-bottom: 0.4375in;
+  --nav-radius: 999px;
+  --nav-padding: 0.0625in;
+  --nav-side-inset: 0.4375in;
+  --nav-tab-height: calc(0.9 * var(--nav-height));
+  --nav-tab-font-size: 0.76rem;
 }
 
 body {
@@ -25,7 +33,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 20px 18px 108px;
+  padding: 20px 18px calc(108px + var(--nav-height) + var(--nav-bottom) + 0.25in);
   box-sizing: border-box;
   min-height: 100%;
 }
@@ -90,6 +98,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px;
+  padding-bottom: calc(var(--nav-height) + var(--nav-bottom) + 0.12in);
 }
 
 .app_label {
@@ -167,33 +176,6 @@ body {
   gap: 10px;
 }
 
-.favorite_button {
-  margin-left: auto;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  padding: 0;
-  cursor: pointer;
-  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-}
-
-.favorite_button:hover,
-.favorite_button:focus-visible {
-  border-color: #f59e0b;
-  transform: translateY(-1px) scale(1.03);
-  outline: none;
-}
-
-.favorite_button.active {
-  border-color: #fbbf24;
-  background: #fff8d6;
-}
-
 .favorite_canvas {
   display: block;
   width: 20px;
@@ -234,17 +216,20 @@ body {
 
 .nav_bar {
   position: fixed;
-  bottom: max(18px, calc(env(safe-area-inset-bottom) + 10px));
   left: 50%;
+  bottom: var(--nav-bottom);
   transform: translateX(-50%);
-  width: min(96vw, 780px);
+  width: calc(100vw - (2 * var(--nav-side-inset)));
+  max-width: calc(100vw - (2 * var(--nav-side-inset)));
+  height: var(--nav-height);
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 8px;
-  height: auto;
+  padding: var(--nav-padding);
   box-sizing: border-box;
-  border: 1px solid rgba(24, 50, 75, 0.12);
-  border-radius: 999px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--nav-height) / 2);
+  overflow: hidden;
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(18px);
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
@@ -253,54 +238,46 @@ body {
 
 .nav_tabs {
   display: flex;
-  flex: 1;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: space-evenly;
   width: 100%;
-  align-items: stretch;
-  gap: 6px;
-  padding: 4px 4px;
+  height: 100%;
+  gap: 0.0625in;
 }
 
 .nav_tab {
-  display: flex;
   flex: 1 1 0;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px 10px 8px;
+  height: var(--nav-tab-height);
+  min-width: 0;
+  padding: 0 0.08in;
   border: none;
+  border-radius: var(--nav-radius);
   background: transparent;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: var(--nav-tab-font-size);
   line-height: 0.95;
   cursor: pointer;
-  transition: color 160ms ease, transform 160ms ease, background 160ms ease;
-  min-width: 0;
-  border-radius: 999px;
-  min-height: 58px;
-  gap: 2px;
-  flex-basis: 0;
 }
 
 .nav_tab:hover,
-.nav_tab:focus-visible {
+.nav_tab:focus-visible,
+.nav_tab.active {
   color: var(--accent);
-  transform: none;
-  outline: none;
-  background: rgba(37, 99, 235, 0.06);
+  background: rgba(37, 99, 235, 0.08);
 }
 
 .nav_tab.active {
-  color: var(--accent);
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.16), rgba(139, 92, 246, 0.12));
-  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.12);
 }
 
 .nav_tab_icon {
   display: block;
   font-size: 1.3rem;
   margin-bottom: 2px;
-  padding: 0 2px;
 }
 
 .nav_tab_label {
@@ -359,11 +336,6 @@ body {
   margin-top: 0;
 }
 
-.section_description {
-  color: var(--muted);
-  line-height: 1.6;
-}
-
 .empty_state {
   padding: 16px;
   border-radius: 16px;
@@ -399,6 +371,13 @@ body {
 }
 
 @media (max-width: 640px) {
+  :root {
+    --nav-width: calc(100vw - 0.25in + 0.5in);
+    --nav-height: 0.72in;
+    --nav-bottom: 0.25in;
+    --nav-tab-font-size: 0.78rem;
+  }
+
   .app_home {
     padding: 14px 12px 108px;
   }
@@ -424,30 +403,13 @@ body {
     height: 32px;
   }
 
-  .nav_bar {
-    width: calc(100vw - 12px);
-    bottom: max(8px, env(safe-area-inset-bottom));
-    padding: 5px;
-  }
-
-  .nav_tabs {
-    padding: 4px 14px;
-  }
-
-  .nav_tab {
-    padding: 12px 8px;
-    font-size: 0.78rem;
-    min-height: 62px;
-  }
-
   .nav_tab_icon {
     font-size: 1.45rem;
     margin-bottom: 4px;
-    padding: 0 3px;
   }
 
   .nav_tab_label {
-    font-size: 0.78rem;
+    font-size: var(--nav-tab-font-size);
   }
 }
 
