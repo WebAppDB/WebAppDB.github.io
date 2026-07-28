@@ -13,7 +13,9 @@
   --nav-bottom: 0.4375in;
   --nav-radius: 999px;
   --nav-padding: 0.0625in;
-  --nav-side-inset: 0.4375in;
+  --nav-side-inset: 0.21875in;
+  --nav-max-width: 5in;
+  --nav-bottom: 0.4375in;
   --nav-tab-height: calc(0.9 * var(--nav-height));
   --nav-tab-font-size: 0.76rem;
 }
@@ -217,10 +219,10 @@ body {
 .nav_bar {
   position: fixed;
   left: 50%;
-  bottom: var(--nav-bottom);
+  bottom: calc(var(--nav-bottom) - 5px);
   transform: translateX(-50%);
-  width: calc(100vw - (2 * var(--nav-side-inset)));
-  max-width: calc(100vw - (2 * var(--nav-side-inset)));
+  width: min(calc(100vw - (2 * var(--nav-side-inset))), var(--nav-max-width));
+  max-width: var(--nav-max-width);
   height: var(--nav-height);
   display: flex;
   align-items: center;
@@ -251,16 +253,17 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: var(--nav-tab-height);
+  height: calc(var(--nav-height) - 0.12in);
   min-width: 0;
   padding: 0 0.08in;
   border: none;
-  border-radius: var(--nav-radius);
+  border-radius: 999px;
   background: transparent;
   color: var(--muted);
-  font-size: var(--nav-tab-font-size);
+  font-size: 0.7rem;
   line-height: 0.95;
   cursor: pointer;
+  gap: 0.02in;
 }
 
 .nav_tab:hover,
@@ -276,12 +279,12 @@ body {
 
 .nav_tab_icon {
   display: block;
-  font-size: 1.3rem;
-  margin-bottom: 2px;
+  font-size: 1.16rem;
+  margin-bottom: 1px;
 }
 
 .nav_tab_label {
-  font-size: 0.72rem;
+  font-size: 0.66rem;
   line-height: 0.95;
 }
 
