@@ -19,6 +19,52 @@
   --nav-tab-font-size: 0.76rem;
 }
 
+.viewport_backButton {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 99999;
+  display: none;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.96rem;
+  line-height: 1;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+  opacity: 0.95;
+  transition: opacity 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.viewport_backButton:hover,
+.viewport_backButton:focus-visible {
+  opacity: 1;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.viewport_backButton:active {
+  transform: translateY(0);
+}
+
+.viewport_backButton:hover,
+.viewport_backButton:focus-visible {
+  opacity: 1;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.viewport_backButton:active {
+  transform: translateY(0);
+}
+
 body {
   margin: 0;
   font-family: "Segoe UI", Roboto, Arial, sans-serif;
