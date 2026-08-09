@@ -21,37 +21,36 @@
 
 .viewport_backButton {
   position: fixed;
-  top: 14px;
-  left: 14px;
+  top: 0;
+  left: 0;
   z-index: 99999;
   display: none;
-  min-width: 42px;
-  min-height: 42px;
-  padding: 8px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.96);
+  width: 0;
+  height: 0;
+  padding: 0;
+  border-top: 42px solid rgba(255, 255, 255, 0.96);
+  border-right: 42px solid transparent;
+  border-left: 0;
+  border-bottom: 0;
+  background: transparent;
   color: var(--text);
   font-weight: 700;
-  font-size: 0.96rem;
+  font-size: 0.94rem;
   line-height: 1;
   text-align: center;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
-  backdrop-filter: blur(14px);
+  box-shadow: none;
+  backdrop-filter: none;
   cursor: pointer;
   opacity: 0.95;
-  transition: opacity 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  transition: opacity 160ms ease, transform 160ms ease;
 }
 
-.viewport_backButton:hover,
-.viewport_backButton:focus-visible {
-  opacity: 1;
-  transform: translateY(-1px);
-  outline: none;
-}
-
-.viewport_backButton:active {
-  transform: translateY(0);
+.viewport_backButton::before {
+  content: '<';
+  position: absolute;
+  top: -34px;
+  left: 8px;
+  pointer-events: none;
 }
 
 .viewport_backButton:hover,
