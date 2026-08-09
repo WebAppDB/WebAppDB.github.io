@@ -100,15 +100,20 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px;
   padding-bottom: calc(var(--nav-height) + var(--nav-bottom) + 0.12in);
+  /* Make all grid cells equal height so cards align neatly in rows */
+  grid-auto-rows: 1fr;
+  align-items: stretch;
 }
 
 .app_label {
   display: grid;
   grid-template-columns: 54px 1fr;
-  grid-template-rows: auto auto auto;
+  /* Title / Description (flexible) / Actions */
+  grid-template-rows: auto 1fr auto;
   gap: 6px 12px;
   width: 100%;
   min-height: 110px;
+  height: 100%;
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -118,6 +123,44 @@ body {
   cursor: pointer;
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
   transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  /* Prevent overflowing children from breaking grid layout */
+  box-sizing: border-box;
+  min-width: 0;
+  align-self: stretch;
+}
+
+/* Description: clamp to 3 lines by default; toggle .expanded to reveal */
+.app_description {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.app_description.expanded {
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  display: block;
+  overflow: auto;
+}
+
+.more_button {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 0.82rem;
+  display: none; /* shown dynamically when needed */
+}
+
+.more_button.show {
+  display: inline-block;
 }
 
 .app_label:hover,
@@ -169,6 +212,58 @@ body {
   font-size: 0.82rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.app_label.selected {
+  border-color: rgba(37, 99, 235, 0.26);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.10);
+}
+
+.app_label.selected .app_description {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+}
+
+.app_detail {
+  grid-column: 1 / -1;
+  padding: 10px 2px 2px;
+  border-top: 1px solid rgba(24, 50, 75, 0.08);
+  margin-top: 4px;
+}
+
+.app_detail_text {
+  margin: 0 0 6px;
+  color: var(--text);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.app_detail_meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.selected_app_favorite,
+.app_action_button {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.selected_app_favorite,
+.app_action_button {
+  background: rgba(37, 99, 235, 0.10);
+  color: var(--accent);
+}
+
+.app_action_button.primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
 }
 
 .app_action_row {

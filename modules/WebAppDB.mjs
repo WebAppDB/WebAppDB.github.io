@@ -7,6 +7,111 @@ function getAppId(app) {
   return app.module || app.title || 'app';
 }
 
+function normalizeHeader(text) {
+  return (text || '').toString().trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function getFirstMatchingValue(row, aliases) {
+  if (!row || !Array.isArray(row.c)) {
+    return '';
+  }
+
+  const headers = row.c;
+  const normalisedAliases = aliases.map(function (alias) {
+    return normalizeHeader(alias);
+  });
+
+  let foundValue = '';
+  headers.forEach(function (headerCell, index) {
+    if (foundValue !== '' || !headerCell || headerCell.v === undefined) {
+      return;
+    }
+
+    const normalizedHeader = normalizeHeader(headerCell.v);
+    if (normalisedAliases.indexOf(normalizedHeader) >= 0) {
+      foundValue = (row.c[index + 1] && row.c[index + 1].v !== undefined) ? row.c[index + 1].v : '';
+    }
+  });
+
+  return foundValue;
+}
+
+function parseTimestamp(value) {
+  if (!value) {
+    return 0;
+  }
+
+  const timestamp = new Date(value);
+  return isNaN(timestamp.getTime()) ? 0 : timestamp.getTime();
+}
+
+function parseAppListFromGoogleSheets(text) {
+  try {
+    const payloadMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)\s*;?\s*$/);
+    const payloadText = payloadMatch ? payloadMatch[1] : text;
+    const payload = JSON.parse(payloadText);
+    const rows = (payload && payload.table && Array.isArray(payload.table.rows)) ? payload.table.rows : [];
+    const columns = (payload && payload.table && Array.isArray(payload.table.cols)) ? payload.table.cols : [];
+
+    if (!rows.length || !columns.length) {
+      return [];
+    }
+
+    const headers = columns.map(function (column) {
+      return column && column.label ? column.label : '';
+    });
+
+    return rows.map(function (row) {
+      const values = Array.isArray(row && row.c) ? row.c : [];
+      const getValue = function (aliases) {
+        const aliasList = Array.isArray(aliases) ? aliases : [aliases];
+        let value = '';
+        headers.forEach(function (header, index) {
+          if (value !== '') {
+            return;
+          }
+          const normalizedHeader = normalizeHeader(header);
+          if (aliasList.some(function (alias) {
+            return normalizeHeader(alias) === normalizedHeader;
+          })) {
+            const currentCell = values[index];
+            value = currentCell && currentCell.v !== undefined ? currentCell.v : '';
+          }
+        });
+        return value;
+      };
+
+      const title = (getValue(['title', 'name']) || '').toString().trim();
+      const description = (getValue(['description', 'summary', 'shortdescription', 'shortdesc']) || '').toString().trim();
+      const longDescription = (getValue(['longdescription', 'longdesc', 'details', 'about', 'longdescriptiontext']) || '').toString().trim();
+      const icon = (getValue(['icon', 'image', 'iconurl']) || '').toString().trim();
+      const module = (getValue(['module', 'appmodule', 'appurl', 'link', 'moduleurl']) || '').toString().trim();
+      const css = (getValue(['css', 'stylesheet', 'style', 'cssurl']) || '').toString().trim();
+      const email = (getValue(['email', 'emailaddress', 'submittedby', 'submitteremail', 'author', 'registeredemail']) || '').toString().trim();
+      const timestamp = (getValue(['timestamp', 'date', 'created', 'createdat', 'submittedat', 'dateadded']) || '').toString().trim();
+
+      if (!title && !description && !module) {
+        return null;
+      }
+
+      return {
+        title: title || 'Untitled App',
+        description: description || 'No description provided yet.',
+        longDescription: longDescription || description || 'No detailed description provided yet.',
+        icon: icon || './defaultIcon.png',
+        module: module || '',
+        css: css || '',
+        email: email || 'Unknown',
+        timestamp: timestamp,
+        timestampMs: parseTimestamp(timestamp),
+        isNew: true
+      };
+    }).filter(Boolean);
+  } catch (error) {
+    return [];
+  }
+}
+
 function dedupeApps(apps) {
   const seenIds = new Set();
   return (Array.isArray(apps) ? apps : []).filter(function (app) {
@@ -40,7 +145,8 @@ function createAppPage(iContainerDom) {
     activeTab: 'whats_new',
     favorites: getFavoritesFromCookie(),
     searchTerm: '',
-    appList: []
+    appList: [],
+    selectedApp: null
   };
 
   const renderContent = function () {
@@ -69,9 +175,12 @@ function createAppPage(iContainerDom) {
         return state.favorites.includes(getAppId(app));
       });
     } else if (state.activeTab === 'whats_new') {
-      visibleApps = uniqueApps.filter(function (app, index) {
-        return app.isNew === true || app.new === true || index < 3;
-      });
+      visibleApps = uniqueApps
+        .slice()
+        .sort(function (left, right) {
+          return (right.timestampMs || 0) - (left.timestampMs || 0);
+        })
+        .slice(0, 6);
     } else if (state.activeTab === 'search') {
       const query = state.searchTerm.trim().toLowerCase();
       visibleApps = uniqueApps.filter(function (app) {
@@ -91,7 +200,7 @@ function createAppPage(iContainerDom) {
     } else if (state.activeTab === 'info') {
       const panel = document.createElement('div');
       panel.className = 'info_panel';
-      panel.innerHTML = '<h2>About WebAppDB</h2><p class="section_description">WebAppDB is a simple launcher for web apps. Use the tabs below to browse new apps, search for something specific, or save a few favorites for quick access.</p>';
+      panel.innerHTML = '<h2>About WebAppDB</h2><p class="section_description">WebAppDB is a simple launcher for web apps. Use the tabs below to browse new apps, search for something specific, or save a few favorites for quick access. Anyone can add a new application by implementing a web page using the WebAppDB template at <a href="https://github.com/WebAppDB/WebAppTemplate" target="_blank" rel="noopener noreferrer">https://github.com/WebAppDB/WebAppTemplate</a> and submitting the application through <a href="https://forms.gle/qFCtnZzGApUmEZHf6" target="_blank" rel="noopener noreferrer">this form</a>. For a reference implementation, see the <a href="https://github.com/WebAppDB/WebAppDB.github.io/tree/main/demoApps" target="_blank" rel="noopener noreferrer">demo app source code</a>.</p>';
       appListDom.appendChild(panel);
       return;
     } else {
@@ -126,8 +235,12 @@ function createAppPage(iContainerDom) {
     appListDom.appendChild(appGrid);
 
     visibleApps.forEach(function (app) {
+      const isSelected = !!(state.selectedApp && getAppId(state.selectedApp) === getAppId(app));
       const appDom = document.createElement('div');
       appDom.className = 'app_label';
+      if (isSelected) {
+        appDom.classList.add('selected');
+      }
       appDom.setAttribute('role', 'button');
       appDom.setAttribute('tabindex', '0');
       appDom.setAttribute('aria-label', 'Launch ' + app.title);
@@ -141,13 +254,15 @@ function createAppPage(iContainerDom) {
       }
 
       appDom.addEventListener('click', function () {
-        sendLoadModuleRequest(webAppDescriptor);
+        state.selectedApp = isSelected ? null : app;
+        renderContent();
       });
 
       appDom.addEventListener('keydown', function (event) {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          sendLoadModuleRequest(webAppDescriptor);
+          state.selectedApp = isSelected ? null : app;
+          renderContent();
         }
       });
 
@@ -166,14 +281,50 @@ function createAppPage(iContainerDom) {
 
       const descriptionDom = document.createElement('div');
       descriptionDom.innerHTML = app.description;
-      descriptionDom.className = 'app_description';
+      descriptionDom.className = 'app_description clamped';
+
+      if (isSelected) {
+        descriptionDom.classList.remove('clamped');
+        descriptionDom.classList.add('expanded');
+      }
+
+      const detailDom = document.createElement('div');
+      detailDom.className = 'app_detail';
+      if (isSelected) {
+        const detailText = document.createElement('p');
+        detailText.className = 'app_detail_text';
+        detailText.textContent = app.longDescription || app.description || 'No description provided yet.';
+        detailDom.appendChild(detailText);
+
+        const detailMeta = document.createElement('div');
+        detailMeta.className = 'app_detail_meta';
+        detailMeta.textContent = 'Signed by ' + (app.email || 'Unknown');
+        detailDom.appendChild(detailMeta);
+      }
 
       const actionDom = document.createElement('div');
       actionDom.className = 'app_action app_action_row';
 
-      const launchText = document.createElement('span');
-      launchText.textContent = 'Launch';
-      actionDom.appendChild(launchText);
+      const viewButton = document.createElement('button');
+      viewButton.type = 'button';
+      viewButton.className = 'app_action_button';
+      viewButton.textContent = isSelected ? 'Hide' : 'View';
+      viewButton.addEventListener('click', function (event) {
+        event.stopPropagation();
+        state.selectedApp = isSelected ? null : app;
+        renderContent();
+      });
+      actionDom.appendChild(viewButton);
+
+      const launchButton = document.createElement('button');
+      launchButton.type = 'button';
+      launchButton.className = 'app_action_button primary';
+      launchButton.textContent = 'Launch';
+      launchButton.addEventListener('click', function (event) {
+        event.stopPropagation();
+        launchApp(app);
+      });
+      actionDom.appendChild(launchButton);
 
       const isFavorite = state.favorites.includes(getAppId(app));
       const favoriteButton = document.createElement('button');
@@ -194,12 +345,38 @@ function createAppPage(iContainerDom) {
       });
       actionDom.appendChild(favoriteButton);
 
+      /* More button (hidden by default). Will be shown if description overflows. */
+      const moreBtn = document.createElement('button');
+      moreBtn.type = 'button';
+      moreBtn.className = 'more_button';
+      moreBtn.textContent = 'More';
+      moreBtn.addEventListener('click', function (event) {
+        event.stopPropagation();
+        const expanded = descriptionDom.classList.toggle('expanded');
+        descriptionDom.classList.toggle('clamped', !expanded);
+        moreBtn.textContent = expanded ? 'Less' : 'More';
+      });
+      actionDom.insertBefore(moreBtn, favoriteButton);
+
       appDom.appendChild(iconWrap);
       appDom.appendChild(titleDom);
       appDom.appendChild(descriptionDom);
+      if (isSelected) {
+        appDom.appendChild(detailDom);
+      }
       appDom.appendChild(actionDom);
 
       appGrid.appendChild(appDom);
+
+      // After inserted into DOM, check if description actually overflows its clamped box.
+      // If so, show the More button; otherwise keep it hidden.
+      try {
+        if (descriptionDom.scrollHeight > descriptionDom.clientHeight + 1) {
+          moreBtn.classList.add('show');
+        }
+      } catch (e) {
+        // ignore measurement errors in some environments
+      }
     });
   };
 
@@ -223,17 +400,49 @@ function createAppPage(iContainerDom) {
     renderContent();
   };
 
+  const launchApp = function (app) {
+    const webAppDescriptor = parseWebAppDescriptor(app);
+    if (!(webAppDescriptor.module.indexOf('://') > 0 || webAppDescriptor.module.indexOf('//') === 0)) {
+      webAppDescriptor.module = location.origin + "/" + webAppDescriptor.module;
+    }
+    if (!(webAppDescriptor.css.indexOf('://') > 0 || webAppDescriptor.css.indexOf('//') === 0)) {
+      webAppDescriptor.css = location.origin + "/" + webAppDescriptor.css;
+    }
+    sendLoadModuleRequest(webAppDescriptor);
+  };
+
   const loadAppList = function () {
-    fetch('./appList.json')
+    fetch('https://docs.google.com/spreadsheets/d/19-nT1W50rhmR9bMMIoiW7UAgM0jAZKXdZGrXnMk_A5g/gviz/tq?tqx=out:json')
       .then(function (response) {
-        return response.json();
+        return response.text();
       })
-      .then(function (data) {
-        state.appList = dedupeApps(Array.isArray(data) ? data : []);
+      .then(function (text) {
+        const sheetApps = parseAppListFromGoogleSheets(text);
+        if (sheetApps.length > 0) {
+          state.appList = dedupeApps(sheetApps);
+        } else {
+          return fetch('./appList.json')
+            .then(function (fallbackResponse) {
+              return fallbackResponse.json();
+            })
+            .then(function (data) {
+              state.appList = dedupeApps(Array.isArray(data) ? data : []);
+            });
+        }
         renderContent();
       })
       .catch(function () {
-        appListDom.innerHTML = '<div class="empty_state">Unable to load the application list right now.</div>';
+        fetch('./appList.json')
+          .then(function (fallbackResponse) {
+            return fallbackResponse.json();
+          })
+          .then(function (data) {
+            state.appList = dedupeApps(Array.isArray(data) ? data : []);
+            renderContent();
+          })
+          .catch(function () {
+            appListDom.innerHTML = '<div class="empty_state">Unable to load the application list right now.</div>';
+          });
       });
   };
 
